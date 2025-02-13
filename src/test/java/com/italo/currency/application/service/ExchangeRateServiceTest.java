@@ -1,7 +1,8 @@
 package com.italo.currency.application.service;
 
 import com.italo.currency.application.exception.ExchangeInputException;
-import com.italo.currency.domain.CurrencyRate;
+import com.italo.currency.domain.model.CurrencyRate;
+import com.italo.currency.domain.repository.CurrencyRateRepository;
 import com.italo.currency.infrastructure.client.ExchangeRateClient;
 import com.italo.currency.infrastructure.client.exception.ExchangeException;
 import com.italo.currency.infrastructure.client.response.ExchangeRateResponse;
@@ -16,11 +17,16 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Map;
 
+import static org.mockito.ArgumentMatchers.any;
+
 @ExtendWith(MockitoExtension.class)
 public class ExchangeRateServiceTest {
 
     @Mock
     private ExchangeRateClient exchangeRateClient;
+
+    @Mock
+    CurrencyRateRepository currencyRateRepository;
 
     @InjectMocks
     private ExchangeRateService exchangeRateService;
@@ -32,6 +38,7 @@ public class ExchangeRateServiceTest {
         exchangeRateResponse.setResult("success");
         exchangeRateResponse.setConversionRates(Map.of("BRL", 1.00F, "USD", 5.89F));
         Mockito.when(exchangeRateClient.getExchangeRate("api-key", "BRL")).thenReturn(exchangeRateResponse);
+        Mockito.when(currencyRateRepository.saveCurrencyRate(any())).thenReturn(null);
         ReflectionTestUtils.setField(exchangeRateService, "apiKey", "api-key");
         CurrencyRate currencyRate = exchangeRateService.getCurrencyRate("BRL", "USD");
         Assertions.assertNotNull(currencyRate);

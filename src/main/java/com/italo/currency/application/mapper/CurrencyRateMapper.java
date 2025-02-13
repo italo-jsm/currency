@@ -1,7 +1,7 @@
 package com.italo.currency.application.mapper;
 
 import com.italo.currency.api.dto.CurrencyRateDto;
-import com.italo.currency.domain.CurrencyRate;
+import com.italo.currency.domain.model.CurrencyRate;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

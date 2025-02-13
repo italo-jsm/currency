@@ -1,49 +1,19 @@
 package com.italo.currency.infrastructure.client;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.italo.currency.infrastructure.IntegrationTestBase;
 import com.italo.currency.infrastructure.client.exception.ExchangeException;
 import com.italo.currency.infrastructure.client.response.ExchangeRateResponse;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.wiremock.integrations.testcontainers.WireMockContainer;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @SpringBootTest
-public class ExchangeRateClientIntegrationTest {
-
-    static ObjectMapper objectMapper;
-
-    static WireMockContainer wiremock = new WireMockContainer("wiremock/wiremock");
+public class ExchangeRateClientIntegrationTest extends IntegrationTestBase {
 
     @Autowired
     private ExchangeRateClient client;
-
-    @BeforeAll
-    static void beforeAll() {
-        wiremock.start();
-        objectMapper = new ObjectMapper();
-        objectMapper.findAndRegisterModules();
-    }
-
-    @BeforeEach
-    void setup() {
-        WireMock.configureFor(wiremock.getHost(), wiremock.getPort());
-        WireMock.reset();
-    }
-
-    @AfterAll
-    static void afterAll() {
-        wiremock.stop();
-    }
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("exchange-rate.client.url", wiremock::getBaseUrl);
-    }
 
     @Test
     void shouldReturnExchangeRate_whenApiRespondsSuccessfully() {
@@ -93,7 +63,7 @@ public class ExchangeRateClientIntegrationTest {
 
 
         try{
-            ExchangeRateResponse response = client.getExchangeRate("api-key", "BRLy");
+            client.getExchangeRate("api-key", "BRLy");
             Assertions.fail("Should throw exception");
         }catch (Exception e){
             Assertions.assertInstanceOf(ExchangeException.class, e);

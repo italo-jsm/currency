@@ -1,8 +1,10 @@
-package com.italo.currency.domain;
+package com.italo.currency.domain.model;
 
 import com.italo.currency.infrastructure.client.response.ExchangeRateResponse;
 import lombok.Builder;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -13,6 +15,7 @@ public class CurrencyRate {
     private String baseCode;
     private String targetCode;
     private double conversionRate;
+    private LocalDateTime timestamp;
 
     public static CurrencyRate fromExchangeRateResponse(ExchangeRateResponse exchangeRateResponse, String targetCode){
         return CurrencyRate
@@ -22,6 +25,7 @@ public class CurrencyRate {
                 .baseCode(exchangeRateResponse.getBaseCode())
                 .targetCode(targetCode)
                 .conversionRate(exchangeRateResponse.getConversionRates().get(targetCode))
+                .timestamp(LocalDateTime.now())
                 .build();
     }
 }

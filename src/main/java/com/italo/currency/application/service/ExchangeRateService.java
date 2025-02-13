@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.italo.currency.application.exception.ExchangeInputException;
 import com.italo.currency.application.exception.MessageDetails;
-import com.italo.currency.domain.CurrencyRate;
+import com.italo.currency.application.mapper.CurrencyRateMapper;
+import com.italo.currency.domain.model.CurrencyRate;
+import com.italo.currency.domain.repository.CurrencyRateRepository;
 import com.italo.currency.infrastructure.client.ExchangeRateClient;
 import com.italo.currency.infrastructure.client.exception.ExchangeException;
 import com.italo.currency.infrastructure.client.response.ExchangeRateResponse;
@@ -17,6 +19,9 @@ import org.springframework.stereotype.Service;
 public class ExchangeRateService {
 
     private final ExchangeRateClient exchangeRateClient;
+    private final CurrencyRateRepository currencyRateRepository;
+    private final CurrencyRateMapper currencyRateMapper;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Value("${exchange-rate.client.api-key}")
@@ -28,7 +33,9 @@ public class ExchangeRateService {
             if(exchangeRate.getConversionRates().get(targetCode) == null){
                 throw new ExchangeInputException(MessageDetails.getMessageDetails("unsupported-code"));
             }
-            return CurrencyRate.fromExchangeRateResponse(exchangeRate, targetCode);
+            CurrencyRate currencyRate = CurrencyRate.fromExchangeRateResponse(exchangeRate, targetCode);
+            currencyRateRepository.saveCurrencyRate(currencyRate);
+            return currencyRate;
         }catch (ExchangeException e){
             try {
                 throw new ExchangeInputException(MessageDetails.getMessageDetails(objectMapper.readValue(e.getMessage(), ExchangeRateResponse.class).getErrorType()));

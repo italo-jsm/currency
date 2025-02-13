@@ -1,0 +1,36 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 1
+      author: "italo"
+      changes:
+        - createTable:
+            tableName: "currency-rate"
+            columns:
+              - column:
+                  name: "id"
+                  type: "varchar(255)"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "conversion_rate"
+                  type: "DECIMAL"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "target_code"
+                  type: "varchar(255)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "base_code"
+                  type: "varchar(255)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "timestamp"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+
