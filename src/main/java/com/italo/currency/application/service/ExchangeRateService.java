@@ -11,11 +11,13 @@ import com.italo.currency.infrastructure.client.ExchangeRateClient;
 import com.italo.currency.infrastructure.client.exception.ExchangeException;
 import com.italo.currency.infrastructure.client.response.ExchangeRateResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ExchangeRateService {
 
     private final ExchangeRateClient exchangeRateClient;
@@ -31,6 +33,7 @@ public class ExchangeRateService {
         try{
             ExchangeRateResponse exchangeRate = exchangeRateClient.getExchangeRate(apiKey, baseCode);
             if(exchangeRate.getConversionRates().get(targetCode) == null){
+                log.error("Target code is not present on codes provided by the API.");
                 throw new ExchangeInputException(MessageDetails.getMessageDetails("unsupported-code"));
             }
             CurrencyRate currencyRate = CurrencyRate.fromExchangeRateResponse(exchangeRate, targetCode);
@@ -38,8 +41,10 @@ public class ExchangeRateService {
             return currencyRate;
         }catch (ExchangeException e){
             try {
+                log.error("Base code is not provided by the API.");
                 throw new ExchangeInputException(MessageDetails.getMessageDetails(objectMapper.readValue(e.getMessage(), ExchangeRateResponse.class).getErrorType()));
             } catch (JsonProcessingException ex) {
+                log.error("API Error response not processable");
                 throw new RuntimeException(ex);
             }
         }
